@@ -1,3 +1,5 @@
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/72671ae4-f15c-4f5d-92d7-695731ca468e" />
+
 # 🔍 JSONQuery - Smart JSON/YAML Query Tool
 
 **Version:** 1.0.0  
@@ -633,6 +635,8 @@ MIT License - see LICENSE file for details
 - **Author:** Logan Smith / Metaphy LLC
 
 ---
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/c79c8005-0dd4-401c-a486-ece2a6563d66" />
+
 
 ## 🌟 Why JSONQuery?
 
