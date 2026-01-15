@@ -635,7 +635,8 @@ MIT License - see LICENSE file for details
 - **Author:** Logan Smith / Metaphy LLC
 
 ---
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/c79c8005-0dd4-401c-a486-ece2a6563d66" />
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/7d596c28-9bbb-437d-829e-a558504fa263" />
+
 
 
 ## 🌟 Why JSONQuery?
