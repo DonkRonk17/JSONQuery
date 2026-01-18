@@ -632,12 +632,10 @@ MIT License - see LICENSE file for details
 
 - **GitHub Repository:** https://github.com/DonkRonk17/JSONQuery
 - **Report Issues:** https://github.com/DonkRonk17/JSONQuery/issues
-- **Author:** Logan Smith / Metaphy LLC
 
 ---
+
 <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/7d596c28-9bbb-437d-829e-a558504fa263" />
-
-
 
 ## 🌟 Why JSONQuery?
 
@@ -658,6 +656,12 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Built with ❤️ by the Holy Grail Automation System**
+## 🙏 Credits
+
+Created by **Randell Logan Smith and Team Brain** at [Metaphy LLC](https://metaphysicsandcomputing.com)
+
+Part of the HMSS (Heavenly Morning Star System) ecosystem.
+
+---
 
 **Zero dependencies. Maximum utility. Pure Python.**
