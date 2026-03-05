@@ -1,658 +1,769 @@
-# 🔍 JSONQuery - Smart JSON/YAML Query Tool
+# JSONQuery v1.0.0
 
-**Version:** 1.0.0  
-**Author:** Logan Smith / Metaphy LLC  
-**License:** MIT  
-**GitHub:** https://github.com/DonkRonk17/JSONQuery
+> **Smart JSON Query & Filter Tool** — Query, filter, search, and transform JSON from files or stdin using simple path expressions. Zero external dependencies. Pure Python stdlib.
 
----
-
-## 📖 Overview
-
-**JSONQuery** is a powerful yet simple command-line tool for querying and manipulating JSON and YAML data. It provides an intuitive query syntax that's easier than `jq` while maintaining **zero external dependencies**.
-
-Perfect for developers who need to extract data from API responses, configuration files, or any JSON/YAML document without installing complex tools or learning cryptic syntax.
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://python.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-100%2F100-brightgreen.svg)]()
+[![Part of](https://img.shields.io/badge/part%20of-Holy%20Grail%20Toolkit-gold.svg)](https://github.com/DonkRonk17)
 
 ---
 
-## ✨ Features
+## What Is JSONQuery?
 
-### 🎯 Core Capabilities
-- **Path Queries** - Simple dot notation (`users[0].name`)
-- **Wildcards** - Query all array items (`items[*].price`)
-- **Filtering** - SQL-like filter expressions (`age > 25`)
-- **Search** - Regex search across all values
-- **Statistics** - Calculate sum, avg, min, max, count
-- **Multiple Formats** - Output as JSON, CSV, keys, values, or plain text
-- **YAML Support** - Built-in YAML parser (zero dependencies!)
-- **Stdin Support** - Pipe data from curl, cat, etc.
-- **Zero Dependencies** - Pure Python stdlib
-- **Cross-Platform** - Works on Windows, Linux, macOS
+JSONQuery is a command-line tool for working with JSON data. Think of it like `jq` but pure Python — no installation of compiled binaries, no external packages, no surprises. It runs anywhere Python 3.8+ runs.
 
-### 🎨 User Experience
-- **Intuitive Syntax** - Easier than jq, more powerful than grep
-- **Pretty Output** - Formatted JSON by default
-- **Color Support** - Readable terminal output
-- **Fast** - Pure Python, instant startup
-- **Portable** - Single file, no installation required
+**Perfect for:**
+- Drilling into complex API responses
+- Extracting specific fields from JSON configs
+- Filtering arrays of objects by conditions
+- Searching across all keys and values
+- Converting JSON arrays to CSV
+- Validating JSON files before deployment
+- Piping with RestCLI, SQLiteExplorer, and other Team Brain tools
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Installation
-
-**Option 1: Direct Download (Recommended)**
 ```bash
-# Download the script
-curl -O https://raw.githubusercontent.com/DonkRonk17/JSONQuery/main/jsonquery.py
+# Get a specific value
+python jsonquery.py get data.json "$.users[0].name"
 
-# Make it executable (Linux/macOS)
-chmod +x jsonquery.py
+# Filter an array
+python jsonquery.py filter data.json "$.users" "age>18"
 
-# Run it
-python jsonquery.py data.json
+# Search everywhere
+python jsonquery.py search data.json "admin"
+
+# Pretty-print with color
+python jsonquery.py pretty data.json
+
+# Pipe from stdin
+cat api_response.json | python jsonquery.py get - "$.data.count"
 ```
 
-**Option 2: Clone Repository**
-```bash
-git clone https://github.com/DonkRonk17/JSONQuery.git
-cd JSONQuery
-python jsonquery.py data.json
-```
+---
 
-**Option 3: Install with setup.py**
+## Installation
+
+**Requirements:** Python 3.8+, zero external packages
+
 ```bash
-git clone https://github.com/DonkRonk17/JSONQuery.git
-cd JSONQuery
+# Method 1: Copy the script (simplest)
+cp jsonquery.py /usr/local/bin/jsonquery
+chmod +x /usr/local/bin/jsonquery
+
+# Method 2: pip install (local)
 pip install -e .
 
-# Now use 'jsonquery' command directly
-jsonquery data.json users
+# Method 3: Run directly
+python jsonquery.py --help
 ```
 
-### System Requirements
-- **Python 3.6+** (included with most systems)
-- **No external dependencies** - uses only Python standard library
+**Windows:**
+```powershell
+# Copy to a folder on your PATH
+Copy-Item jsonquery.py "$env:USERPROFILE\bin\jsonquery.py"
 
----
-
-## 📚 Usage Guide
-
-### Basic Queries
-
-**Get entire file**
-```bash
-jsonquery data.json
-```
-
-**Get specific key**
-```bash
-jsonquery data.json users
-```
-
-**Get nested key**
-```bash
-jsonquery data.json data.users
-```
-
-**Get array element**
-```bash
-jsonquery data.json users[0]
-```
-
-**Get nested array element**
-```bash
-jsonquery data.json users[0].name
-```
-
-**Get all array elements (wildcard)**
-```bash
-jsonquery data.json 'users[*].name'
-```
-
-### Filtering
-
-**Numeric comparison**
-```bash
-jsonquery data.json users --filter 'age > 25'
-jsonquery data.json items --filter 'price >= 100'
-jsonquery data.json products --filter 'quantity < 10'
-```
-
-**Exact match**
-```bash
-jsonquery data.json users --filter 'name == "John"'
-jsonquery data.json items --filter 'active == true'
-```
-
-**Not equal**
-```bash
-jsonquery data.json users --filter 'status != "inactive"'
-```
-
-**Regex match**
-```bash
-jsonquery data.json users --filter 'email ~ "@example.com"'
-```
-
-### Search
-
-**Search for pattern in all values**
-```bash
-jsonquery data.json --search 'example'
-```
-
-**Case-sensitive search**
-```bash
-jsonquery data.json --search 'Example' --case-sensitive
-```
-
-**Regex search**
-```bash
-jsonquery data.json --search '\d{3}-\d{4}'
-```
-
-### Statistics
-
-**Calculate stats on numeric values**
-```bash
-jsonquery data.json items[*].price --stats
-```
-
-Output:
-```json
-{
-  "count": 10,
-  "sum": 450.5,
-  "avg": 45.05,
-  "min": 10.0,
-  "max": 99.99
-}
-```
-
-### Output Formats
-
-**JSON (default)**
-```bash
-jsonquery data.json users
-```
-
-**CSV (for arrays of objects)**
-```bash
-jsonquery data.json users --format csv
-```
-
-**Keys only**
-```bash
-jsonquery data.json data --format keys
-```
-
-**Values only**
-```bash
-jsonquery data.json users[0] --format values
-```
-
-**Plain text**
-```bash
-jsonquery data.json users[0].name --format plain
-```
-
-**Compact JSON (no pretty print)**
-```bash
-jsonquery data.json users --no-pretty
-```
-
-### YAML Support
-
-**Parse YAML file**
-```bash
-jsonquery config.yaml database.host --yaml
-```
-
-**Auto-detect from extension**
-```bash
-jsonquery config.yml settings.port
-```
-
-### Stdin Input
-
-**From curl**
-```bash
-curl https://api.github.com/users/octocat | jsonquery - name
-```
-
-**From cat**
-```bash
-cat data.json | jsonquery - users[0].email
-```
-
-**From echo**
-```bash
-echo '{"name": "John", "age": 30}' | jsonquery - age
+# Run as:
+python jsonquery.py get data.json "$.key"
 ```
 
 ---
 
-## 🎯 Real-World Examples
+## Commands
 
-### Example 1: GitHub API
+| Command | Description | Example |
+|---------|-------------|---------|
+| `get` | Get value at a JSON path | `get data.json "$.name"` |
+| `filter` | Filter array by condition | `filter data.json "$.items" "age>18"` |
+| `search` | Search all keys/values | `search data.json "admin"` |
+| `keys` | List all keys at path | `keys data.json "$.config"` |
+| `stats` | Statistics on numeric array | `stats data.json "$.prices"` |
+| `pretty` | Pretty-print with color | `pretty data.json` |
+| `validate` | Validate JSON syntax | `validate data.json` |
+| `csv` | Convert array to CSV | `csv data.json "$.users"` |
+| `count` | Count elements at path | `count data.json "$.items"` |
+| `version` | Show version info | `version` |
 
+---
+
+## Path Syntax
+
+JSONQuery uses a simplified JSONPath-inspired syntax:
+
+| Pattern | Description | Example |
+|---------|-------------|---------|
+| `$` | Root element | `$` |
+| `$.key` | Object key | `$.name` |
+| `$.a.b.c` | Nested keys | `$.user.address.city` |
+| `$.arr[0]` | Array index (0-based) | `$.items[0]` |
+| `$.arr[-1]` | Last element | `$.items[-1]` |
+| `$.arr[*]` | All elements | `$.items[*]` |
+| `$.arr[0:3]` | Slice | `$.items[0:5]` |
+| `$..key` | Recursive search | `$..email` |
+| `$[0]` | Root array index | `$[0]` |
+
+**Examples:**
 ```bash
-# Get user's name
-curl -s https://api.github.com/users/octocat | jsonquery - name
+# Root object
+jsonquery get data.json "$"
 
-# Get follower count
-curl -s https://api.github.com/users/octocat | jsonquery - followers
+# Simple key
+jsonquery get data.json "$.name"
 
-# Get all repository names
-curl -s https://api.github.com/users/octocat/repos | jsonquery - '[*].name'
-```
+# Nested access
+jsonquery get data.json "$.user.address.city"
 
-### Example 2: Package.json
+# Array index
+jsonquery get data.json "$.items[0]"
 
-```bash
-# Get project name
-jsonquery package.json name
+# Last element
+jsonquery get data.json "$.items[-1]"
 
-# Get all dependencies
-jsonquery package.json dependencies --format keys
+# All emails in users array
+jsonquery get data.json "$.users[*].email"
 
-# Get scripts
-jsonquery package.json scripts --format json
-```
+# Array slice (first 5 items)
+jsonquery get data.json "$.items[0:5]"
 
-### Example 3: Configuration Files
+# Array index then key
+jsonquery get data.json "$.users[2].name"
 
-```bash
-# Get database host
-jsonquery config.json database.host
-
-# Get all API endpoints
-jsonquery config.json 'api.endpoints[*].url'
-
-# Find all configs with debug enabled
-jsonquery config.json --filter 'debug == true'
-```
-
-### Example 4: Data Analysis
-
-```bash
-# Get all products over $50
-jsonquery products.json items --filter 'price > 50'
-
-# Calculate average price
-jsonquery products.json 'items[*].price' --stats
-
-# Export to CSV
-jsonquery users.json users --format csv > users.csv
-```
-
-### Example 5: Docker Compose
-
-```bash
-# Get all service names
-jsonquery docker-compose.yml services --format keys --yaml
-
-# Get specific service ports
-jsonquery docker-compose.yml services.web.ports --yaml
-
-# Find services with restart policy
-jsonquery docker-compose.yml --search 'restart: always' --yaml
-```
-
-### Example 6: API Testing Workflow
-
-```bash
-# Make API call and extract data
-curl -s https://api.example.com/data | \
-  jsonquery - 'results[*]' --filter 'active == true' --format csv
-
-# Chain with other tools
-curl -s https://api.example.com/users | \
-  jsonquery - 'users[*].email' --format values | \
-  sort | uniq
-
-# Get stats from API
-curl -s https://api.example.com/metrics | \
-  jsonquery - 'data[*].value' --stats
+# Recursive descent (any depth)
+jsonquery get data.json "$..email"
 ```
 
 ---
 
-## 📖 Query Syntax Guide
+## Filter Conditions
 
-### Path Notation
-
-| Syntax | Description | Example |
-|--------|-------------|---------|
-| `key` | Access dictionary key | `name` |
-| `key1.key2` | Nested keys | `user.profile.name` |
-| `[0]` | Array index | `users[0]` |
-| `key[0]` | Key then index | `users[0].name` |
-| `[*]` | All array elements | `items[*].price` |
-| `key[*].subkey` | Wildcard with path | `users[*].email` |
-
-### Filter Operators
+The `filter` command filters JSON arrays using condition expressions:
 
 | Operator | Description | Example |
 |----------|-------------|---------|
-| `==` | Equal to | `age == 25` |
-| `!=` | Not equal to | `status != "active"` |
-| `>` | Greater than | `price > 100` |
-| `<` | Less than | `quantity < 10` |
-| `>=` | Greater or equal | `score >= 80` |
-| `<=` | Less or equal | `age <= 30` |
-| `~` | Regex match | `email ~ "@gmail.com"` |
+| `key=value` | Exact match | `name=Alice` |
+| `key!=value` | Not equal | `status!=deleted` |
+| `key>number` | Numeric greater than | `age>18` |
+| `key<number` | Numeric less than | `price<100` |
+| `key>=number` | Numeric >= | `rating>=4` |
+| `key<=number` | Numeric <= | `score<=10` |
+| `key~pattern` | Contains (case-insensitive) | `name~ali` |
+| `key^pattern` | Starts with | `email^admin` |
+| `key$pattern` | Ends with | `email$gmail.com` |
+| `key` | Key exists and is truthy | `active` |
+| `!key` | Key absent or falsy | `!deleted` |
 
-### Value Types
+**Boolean values:** Use `true`/`false` (lowercase) to match JSON booleans:
+```bash
+jsonquery filter data.json "$.users" "active=true"
+jsonquery filter data.json "$.users" "verified=false"
+```
 
-| Type | Example | Notes |
-|------|---------|-------|
-| String | `"text"` or `'text'` | Quotes optional for single words |
-| Number | `123` or `45.67` | Integer or float |
-| Boolean | `true` or `false` | Case-insensitive |
-| Null | `null` or `none` | Case-insensitive |
+**Numeric comparisons:**
+```bash
+jsonquery filter data.json "$.products" "price>50"
+jsonquery filter data.json "$.products" "stock<=0"
+jsonquery filter data.json "$.scores" "rating>=4.5"
+```
+
+**String matching:**
+```bash
+# Exact match
+jsonquery filter data.json "$.users" "role=admin"
+
+# Contains (case-insensitive)
+jsonquery filter data.json "$.users" "name~john"
+
+# Starts with
+jsonquery filter data.json "$.files" "name^report"
+
+# Ends with
+jsonquery filter data.json "$.files" "name$.pdf"
+```
 
 ---
 
-## 🆚 Comparison
+## Output Formats
 
-| Feature | JSONQuery | jq | grep | Python script |
-|---------|-----------|----|----- |---------------|
-| **Zero Dependencies** | ✅ | ❌ | ✅ | ⚠️ |
-| **Simple Syntax** | ✅ | ⚠️ | ⚠️ | ❌ |
-| **JSON Support** | ✅ | ✅ | ❌ | ✅ |
-| **YAML Support** | ✅ | ❌ | ❌ | ⚠️ |
-| **Filtering** | ✅ | ✅ | ❌ | ✅ |
-| **Statistics** | ✅ | ✅ | ❌ | ✅ |
-| **CSV Output** | ✅ | ✅ | ❌ | ✅ |
-| **Learning Curve** | Low | High | Low | High |
-| **File Size** | <50KB | ~1MB | Built-in | Varies |
+Use `--format` (or `-f`) to control output format:
 
-**JSONQuery = jq power + grep simplicity - dependencies**
+| Format | Description | Use Case |
+|--------|-------------|---------|
+| `pretty` | Indented JSON (default) | Human reading |
+| `plain` | Compact JSON | Piping to other tools |
+| `csv` | Comma-separated values | Spreadsheets |
+| `table` | ASCII table | Terminal display |
+| `raw` | Raw string value | Shell variables |
+| `count` | Count only | Scripting |
+
+**Examples:**
+```bash
+# Default: pretty JSON with color
+jsonquery get data.json "$.users"
+
+# Compact for pipes
+jsonquery get data.json "$.users" --format plain
+
+# CSV for spreadsheet
+jsonquery csv data.json "$.users" > users.csv
+
+# ASCII table
+jsonquery get data.json "$.users" --format table
+
+# Raw string (no quotes)
+jsonquery get data.json "$.config.api_key" --format raw --no-color
+
+# Just the count
+jsonquery get data.json "$.users" --format count
+
+# Raw flag shortcut
+jsonquery get data.json "$.name" --raw
+```
 
 ---
 
-## 🔧 Advanced Usage
+## Command Reference
 
-### Combining Queries
+### `jsonquery get FILE PATH [OPTIONS]`
 
-```bash
-# Query then filter
-jsonquery data.json users --filter 'age > 25' --format csv
+Get the value at a JSON path expression.
 
-# Query then search
-jsonquery data.json users[*] --search '@example.com'
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+  PATH    JSONPath expression
 
-# Query then stats
-jsonquery data.json 'sales[*].amount' --stats
+Options:
+  --format, -f   Output format (pretty/plain/csv/table/raw/count)
+  --raw, -r      Raw output (no quotes for string values)
+  --no-color     Disable ANSI colors
+  --null-ok      Return null instead of error for missing paths
+
+Exit codes:
+  0 = Value found
+  1 = Path not found / null result
+  2 = Error (bad file, invalid JSON)
 ```
 
-### Piping with Other Tools
+### `jsonquery filter FILE PATH CONDITION [OPTIONS]`
 
-```bash
-# Count results
-jsonquery data.json users --format values | wc -l
+Filter a JSON array by a condition expression.
 
-# Sort results
-jsonquery data.json 'users[*].name' --format values | sort
+```
+Arguments:
+  FILE        JSON file path, or '-' for stdin
+  PATH        Path to the array (e.g. $.users)
+  CONDITION   Filter condition (e.g. age>18, name~alice, active=true)
 
-# Unique values
-jsonquery data.json 'items[*].category' --format values | sort | uniq
+Options:
+  --format, -f   Output format
+  --no-color     Disable ANSI colors
+  --null-ok      Don't error on missing path
 
-# Combine with grep
-jsonquery data.json users --format csv | grep '@gmail.com'
+Exit codes:
+  0 = Matches found
+  1 = No matches
+  2 = Error
 ```
 
-### Shell Scripting
+### `jsonquery search FILE TERM [OPTIONS]`
 
+Search all keys and values for a term.
+
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+  TERM    Search term (or regex pattern with --regex)
+
+Options:
+  --regex         Use TERM as a regex pattern
+  --keys-only     Search keys only
+  --values-only   Search values only
+  --no-color      Disable ANSI colors
+
+Exit codes:
+  0 = Matches found
+  1 = No matches
+  2 = Error
+```
+
+### `jsonquery keys FILE [PATH] [OPTIONS]`
+
+List all keys at a JSON path (default: root).
+
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+  PATH    Optional path to object (default: $ root)
+
+Exit codes:
+  0 = Keys listed
+  2 = Error
+```
+
+### `jsonquery stats FILE PATH [OPTIONS]`
+
+Compute statistics on a numeric array.
+
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+  PATH    Path to array
+
+Output includes:
+  count, sum, min, max, mean, median,
+  std_dev, p25, p75, type_distribution
+
+Exit codes:
+  0 = Stats computed
+  2 = Error
+```
+
+### `jsonquery pretty FILE [OPTIONS]`
+
+Pretty-print JSON with syntax highlighting.
+
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+
+Options:
+  --no-color   Disable syntax highlighting
+
+Exit codes:
+  0 = Success
+  2 = Error
+```
+
+### `jsonquery validate FILE [OPTIONS]`
+
+Validate JSON syntax and report errors.
+
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+
+Output:
+  VALID   'filename.json' is valid JSON
+  INVALID 'filename.json' has JSON syntax errors
+           Line X, Column Y: error message
+
+Exit codes:
+  0 = Valid JSON
+  1 = Invalid JSON
+  2 = Error (file not found)
+```
+
+### `jsonquery csv FILE PATH [OPTIONS]`
+
+Convert a JSON array of objects to CSV.
+
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+  PATH    Path to array of objects
+
+Exit codes:
+  0 = Success
+  2 = Error
+```
+
+### `jsonquery count FILE PATH [OPTIONS]`
+
+Count elements in an array or keys in an object.
+
+```
+Arguments:
+  FILE    JSON file path, or '-' for stdin
+  PATH    Path to array or object
+
+Output:
+  Single integer (e.g. "42")
+
+Exit codes:
+  0 = Success
+  2 = Error
+```
+
+---
+
+## Piping and Integration
+
+JSONQuery is designed to work in pipelines with other Team Brain tools:
+
+### RestCLI → JSONQuery (Query live API responses)
+```bash
+# Get public repos count from GitHub API
+python restcli.py get https://api.github.com/users/DonkRonk17 | python jsonquery.py get - "$.public_repos" --raw
+
+# Filter API results
+python restcli.py get https://jsonplaceholder.typicode.com/posts | python jsonquery.py filter - "$" "userId=1"
+```
+
+### SQLiteExplorer → JSONQuery (Query database results)
+```bash
+# Export SQLite to JSON, then query
+python sqliteexplorer.py query mydb.db "SELECT * FROM users" --format json | python jsonquery.py filter - "$" "age>18"
+```
+
+### JSONQuery → DiffPilot (Compare JSON files)
+```bash
+# Pretty-print both, then diff
+python jsonquery.py pretty config_v1.json > /tmp/v1.txt
+python jsonquery.py pretty config_v2.json > /tmp/v2.txt
+python diffpilot.py file /tmp/v1.txt /tmp/v2.txt
+```
+
+### JSONQuery → HashGuard (Detect API response changes)
+```bash
+# Save API response hash for change detection
+python jsonquery.py get api.json "$.data[*].id" --format plain | python hashguard.py file -
+```
+
+### LogHunter → JSONQuery (Filter JSON log files)
+```bash
+# If logs are JSON format
+python logHunter.py search app.log.json "ERROR" | python jsonquery.py get - "$.timestamp"
+```
+
+### JSONQuery in Shell Scripts
 ```bash
 #!/bin/bash
+# Extract config value in script
+API_KEY=$(python jsonquery.py get config.json "$.api.key" --raw --no-color)
+echo "API Key: $API_KEY"
 
-# Extract API token
-TOKEN=$(jsonquery config.json api.token --format plain)
-
-# Get all user IDs
-IDS=$(jsonquery users.json 'users[*].id' --format values)
-
-# Process each ID
-for id in $IDS; do
-  curl -H "Authorization: Bearer $TOKEN" \
-    https://api.example.com/users/$id
-done
-```
-
-### Data Transformation
-
-```bash
-# JSON to CSV pipeline
-jsonquery data.json users --format csv > users.csv
-
-# Extract specific fields
-jsonquery data.json 'users[*]' | \
-  jsonquery - '[*].email' --format values > emails.txt
-
-# Filter and export
-jsonquery data.json items --filter 'active == true' --format csv | \
-  csvtool col 1,2,3 -
+# Count records and branch
+COUNT=$(python jsonquery.py count data.json "$.records" --no-color)
+if [ "$COUNT" -gt 100 ]; then
+  echo "Large dataset: $COUNT records"
+fi
 ```
 
 ---
 
-## 📂 Data Examples
+## Color Support
 
-### Example JSON File (users.json)
+JSONQuery automatically detects color support:
+- **macOS/Linux**: Full color on any terminal
+- **Windows 10+**: Full color (ANSI enabled automatically)
+- **Windows 8 and below**: No color (graceful fallback)
+- **No TTY (piped output)**: No color (automatic detection)
+- **`NO_COLOR` env var**: Disables color
+- **`--no-color` flag**: Disables color
+
+**Color scheme:**
+- Keys: Cyan
+- String values: Green
+- Numbers: Yellow
+- Booleans: Blue
+- Null: Dim red
+- Search paths: Magenta
+
+---
+
+## Configuration
+
+Create `~/.jsonquery/config.json` to customize defaults:
 
 ```json
 {
-  "users": [
-    {
-      "id": 1,
-      "name": "John Doe",
-      "email": "john@example.com",
-      "age": 30,
-      "active": true
-    },
-    {
-      "id": 2,
-      "name": "Jane Smith",
-      "email": "jane@example.com",
-      "age": 25,
-      "active": false
-    }
-  ],
-  "metadata": {
-    "total": 2,
-    "page": 1
-  }
+  "default_format": "pretty",
+  "color": true,
+  "indent": 2,
+  "null_ok": false
 }
 ```
 
-**Queries:**
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `default_format` | string | `"pretty"` | Default output format |
+| `color` | bool | `true` | Enable/disable ANSI colors |
+| `indent` | int | `2` | JSON pretty-print indent spaces |
+| `null_ok` | bool | `false` | Return null instead of error for missing paths |
+
+Config is created automatically on first run if missing.
+
+---
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success — value found / condition matched |
+| `1` | No match — path not found / empty result / invalid JSON |
+| `2` | Error — bad file, invalid syntax, wrong argument |
+
+This convention makes JSONQuery easy to use in shell scripts:
 ```bash
-# Get all user names
-jsonquery users.json 'users[*].name'
+# Check if a key exists
+python jsonquery.py get config.json "$.database.host" --null-ok > /dev/null
+if [ $? -eq 0 ]; then
+  echo "Database host is configured"
+fi
 
-# Get active users
-jsonquery users.json users --filter 'active == true'
-
-# Get metadata total
-jsonquery users.json metadata.total
-
-# Calculate average age
-jsonquery users.json 'users[*].age' --stats
-```
-
-### Example YAML File (config.yml)
-
-```yaml
-database:
-  host: localhost
-  port: 5432
-  name: myapp
-
-services:
-  - name: web
-    port: 8080
-    replicas: 3
-  - name: api
-    port: 9000
-    replicas: 2
-```
-
-**Queries:**
-```bash
-# Get database host
-jsonquery config.yml database.host
-
-# Get all service names
-jsonquery config.yml 'services[*].name'
-
-# Get services with more than 2 replicas
-jsonquery config.yml services --filter 'replicas > 2'
+# Use with set -e
+set -e
+python jsonquery.py validate deploy-config.json
+echo "Config is valid, proceeding with deploy..."
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## Error Messages
 
-### Issue: "Invalid JSON" Error
+JSONQuery provides clear, actionable error messages:
 
-```bash
-# Validate JSON first
-python -m json.tool data.json
-
-# Check for trailing commas, single quotes
-# JSON requires double quotes and no trailing commas
 ```
+[ERROR] File not found: 'missing_data.json'
 
-### Issue: Query Returns Nothing
+[ERROR] Invalid JSON in 'broken.json': Expecting ',' delimiter
+  Tip: Use 'jsonquery validate broken.json' for details
 
-```bash
-# Check if path exists
-jsonquery data.json  # View entire structure first
+[ERROR] Path not found: '$.users.nonexistent'
 
-# Use verbose errors (check spelling, case)
-# Remember: JSON is case-sensitive
-```
+[ERROR] Filter requires an array, got dict.
+  Use a path that points to an array.
 
-### Issue: YAML Not Parsing
-
-```bash
-# Explicitly specify YAML
-jsonquery config.yaml --yaml
-
-# Or rename file to .yml/.yaml for auto-detection
-```
-
-### Issue: Wildcard Not Working
-
-```bash
-# Quote wildcards in shell
-jsonquery data.json 'items[*].name'  # Good
-jsonquery data.json items[*].name    # Bad (shell expands *)
+[ERROR] Operator '>' requires numeric values, got 'hello' and '18'
 ```
 
 ---
 
-## 🎓 Tips & Best Practices
+## Advanced Usage
 
-### 1. Start Simple, Then Add Complexity
+### Combining get and filter
 ```bash
-# Good progression
-jsonquery data.json users                    # Step 1: Get array
-jsonquery data.json users[0]                 # Step 2: Get item
-jsonquery data.json users[0].name            # Step 3: Get value
-jsonquery data.json users --filter 'age > 25' # Step 4: Add filter
+# Get names of active users over 21
+python jsonquery.py filter data.json "$.users" "active=true" --format plain | \
+  python jsonquery.py get - "$..[*].name"
 ```
 
-### 2. Use Format Options for Integration
+### Extracting multiple fields
 ```bash
-# Good: CSV for spreadsheets
-jsonquery data.json users --format csv > users.csv
-
-# Good: Values for shell scripting
-for email in $(jsonquery data.json 'users[*].email' --format values); do
-  echo "Sending to $email"
-done
+# Get both name and email for first user
+python jsonquery.py get data.json "$.users[0]" --format plain | \
+  python -c "import json,sys; u=json.load(sys.stdin); print(u['name'], u['email'])"
 ```
 
-### 3. Combine with Other Tools
+### Checking API health
 ```bash
-# Good: Use with curl
-curl -s https://api.example.com/data | jsonquery - result
-
-# Good: Use with jq for advanced features
-jsonquery data.json users | jq 'map(.name)'
+# Validate API response has expected fields
+python jsonquery.py validate response.json && \
+  python jsonquery.py get response.json "$.status" --raw | grep -q "ok" && \
+  echo "API healthy"
 ```
 
-### 4. Quote Complex Queries
+### Stats on sales data
 ```bash
-# Good
-jsonquery data.json 'users[*].profile.settings'
+python jsonquery.py stats sales.json "$.transactions[*].amount"
+# Output:
+# {
+#   "count": 1523,
+#   "sum": 87234.50,
+#   "min": 0.99,
+#   "max": 4999.00,
+#   "mean": 57.28,
+#   "median": 29.99,
+#   "std_dev": 123.45,
+#   "p25": 9.99,
+#   "p75": 79.99
+# }
+```
 
-# Bad (shell misinterprets)
-jsonquery data.json users[*].profile.settings
+### Recursive search for all emails
+```bash
+python jsonquery.py get org_data.json "$..email"
+# Finds ALL emails at ANY depth in the JSON
 ```
 
 ---
 
-## 📊 Project Statistics
+## Comparison with jq
 
-- **Lines of Code:** ~650
-- **Dependencies:** 0 (pure Python stdlib)
-- **File Size:** ~25 KB
-- **Python Version:** 3.6+
-- **Platforms:** Windows, Linux, macOS
-- **Query Types:** 7 (path, filter, search, stats, keys, values, wildcard)
-- **Output Formats:** 5 (JSON, CSV, keys, values, plain)
+| Feature | JSONQuery | jq |
+|---------|-----------|-----|
+| Dependencies | None (Python stdlib) | Compiled C binary |
+| Installation | Copy one .py file | Must install binary |
+| Path syntax | Simplified JSONPath | Full jq language |
+| Filter syntax | `key>value`, `key~term` | Full jq filter expressions |
+| Cross-platform | Any Python 3.8+ | Requires OS-specific binary |
+| Scripting | Python-importable API | CLI only |
+| Learning curve | Minimal | Moderate (unique syntax) |
+| Power | High (common cases) | Higher (complex transforms) |
 
----
+**When to use JSONQuery:** You want quick, readable JSON queries without installing or learning `jq`. Works great for 95% of real-world JSON use cases.
 
-## 🤝 Contributing
-
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+**When to use jq:** You need complex data transformations, custom functions, or recursive path logic beyond what JSONQuery supports.
 
 ---
 
-## 📄 License
+## Python API
 
-MIT License - see LICENSE file for details
+JSONQuery can be imported and used as a Python library:
+
+```python
+from jsonquery import (
+    JSONPathEvaluator,
+    JSONFilter,
+    JSONSearcher,
+    JSONStats,
+    JSONFormatter,
+    load_json
+)
+
+# Load data
+data = load_json("data.json")
+
+# Query
+evaluator = JSONPathEvaluator()
+names = evaluator.evaluate(data, "$.users[*].name")
+print(names)  # ['Alice', 'Bob', 'Charlie']
+
+# Filter
+filterer = JSONFilter()
+adults = filterer.apply(data["users"], "age>18")
+
+# Search
+searcher = JSONSearcher()
+matches = searcher.search(data, "admin")
+for m in matches:
+    print(f"{m['path']}: {m['value']}")
+
+# Stats
+stats = JSONStats()
+result = stats.compute(data["prices"])
+print(f"Average: {result['mean']}")
+
+# Format
+formatter = JSONFormatter()
+csv_output = formatter.format(adults, fmt="csv")
+print(csv_output)
+```
 
 ---
 
-## 🔗 Links
+## Integration Examples
 
-- **GitHub Repository:** https://github.com/DonkRonk17/JSONQuery
-- **Report Issues:** https://github.com/DonkRonk17/JSONQuery/issues
-- **Author:** Logan Smith / Metaphy LLC
+### Team Brain: SessionMirror Inspection
+```bash
+# Inspect a session handoff package
+python jsonquery.py keys ~/.session_mirror/sessions/ 2>/dev/null
+
+# Check what agent created a session
+python jsonquery.py get session_001.json "$.from_agent" --raw
+
+# List all tasks in a handoff
+python jsonquery.py get handoff.json "$.task.description" --raw
+```
+
+### Team Brain: EnvGuard Complement
+```bash
+# Inspect .env.json config structure
+python jsonquery.py keys env_config.json
+python jsonquery.py get env_config.json "$.database" --format table
+```
+
+### Team Brain: MemoryBridge Query
+```bash
+# If MemoryBridge exports to JSON
+python jsonquery.py search memory_export.json "BCH"
+python jsonquery.py filter records.json "$" "namespace=team_brain"
+```
 
 ---
 
-## 🌟 Why JSONQuery?
+## Testing
 
-**JSONQuery was built to solve a simple problem:** developers need to query JSON/YAML data quickly without installing complex tools or learning arcane syntax.
+```bash
+# Run full test suite
+python test_jsonquery.py
 
-### Perfect For:
-- 🔍 **API Response Analysis** - Extract data from REST APIs
-- ⚙️ **Configuration Management** - Query config files
-- 📊 **Data Exploration** - Understand JSON structure
-- 🤖 **Shell Scripting** - Integrate into automation
-- 🧪 **Testing** - Validate API responses
-- 📝 **Documentation** - Extract examples from data
+# Run specific test class
+python -m pytest test_jsonquery.py::TestJSONPathEvaluator -v
 
-### Not For:
-- ❌ Complex transformations (use jq)
-- ❌ Large-scale data processing (use pandas)
-- ❌ Binary formats (use specialized tools)
+# Run with coverage
+python -m pytest test_jsonquery.py --cov=jsonquery --cov-report=term-missing
+```
+
+**Test Results:** 100/100 tests passing (100%)
+
+Test categories:
+- `TestJSONPathEvaluator` (24 tests) - Path expression evaluation
+- `TestJSONFilter` (15 tests) - Array filtering
+- `TestJSONSearcher` (8 tests) - Search functionality
+- `TestJSONStats` (7 tests) - Statistics computation
+- `TestJSONFormatter` (11 tests) - Output formatting
+- `TestLoadJson` (5 tests) - JSON loading
+- `TestCLIIntegration` (16 tests) - Full CLI command testing
+- `TestEdgeCases` (14 tests) - Edge cases and error handling
 
 ---
 
-**Built with ❤️ by the Holy Grail Automation System**
+## Troubleshooting
 
-**Zero dependencies. Maximum utility. Pure Python.**
+### "Path not found" for a key that exists
+- Check your path syntax. Key names are case-sensitive: `$.Name` ≠ `$.name`
+- Verify the key exists: `jsonquery keys data.json "$.parent"`
+- Use `--null-ok` to return null instead of error
+
+### Filter not matching booleans
+- Use lowercase: `active=true` not `active=True`
+- JSON booleans are `true`/`false` (lowercase)
+
+### Unicode display issues on Windows
+- Use `--no-color` to disable ANSI codes
+- Ensure your terminal supports UTF-8
+
+### No color in output
+- Check `NO_COLOR` environment variable isn't set
+- Verify terminal supports ANSI (Windows 10+ required)
+- Use `-f pretty` explicitly
+
+### CSV output has extra quotes
+- This is standard CSV escaping for values containing commas
+- Open with a spreadsheet app for proper display
+
+---
+
+## License
+
+MIT License
+
+Copyright (c) 2026 Logan Smith / Metaphy LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+---
+
+## About
+
+**JSONQuery** is part of the **Holy Grail Automation Toolkit** — 88 professional-grade CLI tools built for developers, AI agents, and automation workflows.
+
+- **GitHub:** https://github.com/DonkRonk17
+- **Built by:** ATLAS (Team Brain — Cursor IDE, Claude Sonnet)
+- **For:** Logan Smith / Metaphy LLC
+- **Date:** March 5, 2026
+
+**Tool #88 of 88** in the Holy Grail Automation Toolkit
+
+---
+
+*"Build something extremely useful, that is easy to use, solves a common problem, and has clear instructions."*
+
+**For the Maximum Benefit of Life. One World. One Family. One Love.** 🔆⚒️🔗

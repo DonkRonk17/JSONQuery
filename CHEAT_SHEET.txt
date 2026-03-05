@@ -1,0 +1,156 @@
+╔══════════════════════════════════════════════════════════════╗
+║              JSONQuery v1.0.0 CHEAT SHEET                    ║
+║         Smart JSON Query & Filter Tool                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  get FILE PATH          Get value at JSON path
+  filter FILE PATH COND  Filter array by condition
+  search FILE TERM       Search all keys/values
+  keys FILE [PATH]       List keys at path
+  stats FILE PATH        Stats on numeric array
+  pretty FILE            Pretty-print with color
+  validate FILE          Validate JSON syntax
+  csv FILE PATH          Convert array to CSV
+  count FILE PATH        Count elements
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PATH SYNTAX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  $              Root element
+  $.key          Object key
+  $.a.b.c        Nested keys
+  $.arr[0]       Array index (0-based)
+  $.arr[-1]      Last element
+  $.arr[*]       All elements
+  $.arr[0:3]     Slice
+  $..key         Recursive search (any depth)
+  $[0]           Root is array, index access
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILTER CONDITIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  key=value      Exact match         name=Alice
+  key!=value     Not equal           status!=deleted
+  key>num        Greater than        age>18
+  key<num        Less than           price<100
+  key>=num       Greater or equal    rating>=4.5
+  key<=num       Less or equal       score<=10
+  key~pattern    Contains            name~ali
+  key^pattern    Starts with         email^admin
+  key$pattern    Ends with           file$.pdf
+  key            Key exists          active
+  !key           Key absent/falsy    !deleted
+
+  Booleans: active=true / active=false (lowercase!)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMATS  (-f or --format)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  pretty   Indented JSON with color (default)
+  plain    Compact single-line JSON
+  csv      Comma-separated values
+  table    ASCII table
+  raw      Raw string (no quotes)
+  count    Just the count
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  --no-color      Disable ANSI colors
+  --null-ok       Return null instead of error for missing path
+  --raw, -r       Raw string output (no quotes)
+  --format, -f    Output format (see above)
+  --regex         Treat search term as regex
+  --keys-only     Search keys only
+  --values-only   Search values only
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXIT CODES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  0   Success / match found
+  1   No match / path not found / invalid JSON
+  2   Error (bad file, wrong args)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUICK EXAMPLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  # Get a value
+  jsonquery get data.json "$.name" --raw
+
+  # Get array item by index
+  jsonquery get data.json "$.users[0].email" --raw
+
+  # Get all emails
+  jsonquery get data.json "$.users[*].email"
+
+  # Filter adults only
+  jsonquery filter data.json "$.users" "age>18"
+
+  # Filter active users, show as table
+  jsonquery filter data.json "$.users" "active=true" -f table
+
+  # Find by email domain
+  jsonquery filter data.json "$.users" "email$example.com"
+
+  # Search everywhere for "admin"
+  jsonquery search data.json "admin"
+
+  # Search with regex
+  jsonquery search data.json "alice|bob" --regex
+
+  # List keys
+  jsonquery keys data.json "$.config"
+
+  # Stats on prices
+  jsonquery stats data.json "$.prices"
+
+  # Export to CSV
+  jsonquery csv data.json "$.users" > users.csv
+
+  # Validate before deploy
+  jsonquery validate config.json
+
+  # Count records
+  jsonquery count data.json "$.records"
+
+  # Recursive search all depths
+  jsonquery get data.json "$..email"
+
+  # From stdin
+  cat data.json | jsonquery get - "$.count"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PIPE INTEGRATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  # RestCLI -> JSONQuery
+  restcli get api.com/users | jsonquery get - "$[0].name"
+
+  # SQLiteExplorer -> JSONQuery
+  sqliteexplorer query db.db "SELECT *" --json | jsonquery filter - "$" "age>18"
+
+  # JSONQuery -> DiffPilot
+  jsonquery pretty v1.json > /tmp/a.txt && jsonquery pretty v2.json > /tmp/b.txt
+  diffpilot file /tmp/a.txt /tmp/b.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFIG:  ~/.jsonquery/config.json
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  { "default_format": "pretty", "color": true, "indent": 2 }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Built by ATLAS | Holy Grail Toolkit #88 | Team Brain
+For Logan Smith / Metaphy LLC
+"Quality is not an act, it is a habit!" ⚛️⚔️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
